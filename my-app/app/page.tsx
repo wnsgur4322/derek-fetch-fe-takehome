@@ -29,7 +29,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div style={{ minHeight: "88vh" }} className="flex items-center justify-center">
       <form
         onSubmit={handleSubmit}
         className="bg-[#2B2E4A] p-6 rounded shadow-md space-y-4"
