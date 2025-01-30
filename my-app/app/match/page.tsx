@@ -1,20 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Fireworks from "react-canvas-confetti/dist/presets/fireworks";
+import { Dog } from "@/app/types";
 
-interface Dog {
-  id: string;
-  img: string;
-  name: string;
-  age: number;
-  zip_code: string;
-  breed: string;
-}
-
-export default function MatchPage() {
+function MatchContent() {
   const searchParams = useSearchParams();
   const matchId = searchParams.get("matchId"); // get the matchId from query params
   const [dog, setDog] = useState<Dog | null>(null);
@@ -66,3 +58,11 @@ export default function MatchPage() {
     </div>
   );
 }
+
+export default function MatchPage() {
+    return (
+      <Suspense fallback={<div>Loading...</div>}>
+        <MatchContent />
+      </Suspense>
+    );
+  }
