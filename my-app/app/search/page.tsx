@@ -1,36 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
-
-// Define interfaces to algin with the API response
-interface Dog {
-  id: string;
-  img: string;
-  name: string;
-  age: number;
-  zip_code: string;
-  breed: string;
-}
-interface Location {
-  zip_code: string
-  latitude: number
-  longitude: number
-  city: string
-  state: string
-  county: string
-}
-interface Coordinates {
-  lat: number;
-  lon: number;
-}
-
+import MatchingCartModal from "@/app/components/MatchingCart";
 
 export default function Search() {
   const [dogs, setDogs] = useState<Dog[]>([]);
   const [breeds, setBreeds] = useState<string[]>([]);
   const [selectedBreed, setSelectedBreed] = useState("");
-  const [favorites, setFavorites] = useState<string[]>([]);
+  const [favorites, setFavorites] = useState<Dog[]>([]);
   const [total, setTotal] = useState(0); // total number of results
   const [page, setPage] = useState(1); // current page
   const [pageSize, setPageSize] = useState(25); // page size
@@ -39,6 +18,8 @@ export default function Search() {
   const [zipCode, setZipCode] = useState("");
   const [ageMin, setAgeMin] = useState<number | undefined>(undefined);
   const [ageMax, setAgeMax] = useState<number | undefined>(undefined);
+
+  const router = useRouter();
 
   const totalPages = Math.ceil(total / pageSize);
 
@@ -100,9 +81,11 @@ export default function Search() {
     fetchDogs(selectedBreed, zipCode, ageMin, ageMax, page, pageSize, sortField, sortOrder);
   }, [selectedBreed, zipCode, ageMin, ageMax, page, pageSize, sortField, sortOrder]);
 
-  const toggleFavorite = (id: string) => {
+  const toggleFavorite = (dog: Dog) => {
     setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((fav) => fav !== id) : [...prev, id]
+      prev.some((fav) => fav.id === dog.id)
+        ? prev.filter((fav) => fav.id !== dog.id)
+        : [...prev, dog]
     );
   };
 
@@ -110,10 +93,13 @@ export default function Search() {
     try {
       const response = await axios.post(
         "https://frontend-take-home-service.fetch.com/dogs/match",
-        favorites,
+        favorites.map((dog) => dog.id),
         { withCredentials: true }
       );
-      alert(`Your match is dog ID: ${response.data.match}`);
+      const matchId = response.data.match;
+  
+      // Redirect to the match page with the match ID
+      router.push(`/match?matchId=${matchId}`);
     } catch (error) {
       console.error("Failed to match", error);
     }
@@ -224,19 +210,23 @@ export default function Search() {
             </div>
             <div className="px-6 pt-4 pb-2">
               <button
-                onClick={() => toggleFavorite(dog.id)}
+                onClick={() => toggleFavorite(dog)}
                 className={`flex items-center justify-center w-full rounded-md px-4 py-2 font-semibold shadow ${
-                  favorites.includes(dog.id)
+                  favorites.includes(dog)
                     ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
                     : "bg-highlight text-white hover:bg-white hover:text-highlight"
                 }`}
               >
-                {favorites.includes(dog.id) ? "Unfavorite" : "Favorite"}
+                {favorites.some((fav) => fav.id === dog.id)
+                  ? "Unfavorite"
+                  : "Favorite"}
               </button>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Pagination */}
       <div className="mt-4 flex justify-between items-center">
         <button
           onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
@@ -262,17 +252,16 @@ export default function Search() {
           Next
         </button>
       </div>
-      <div className="mt-4 flex items-center">
-        <button
-          disabled={favorites.length === 0}
-          onClick={handleMatch}
-          className={`m-auto w-full md:w-1/3 px-4 py-2 rounded ${
-            favorites.length === 0 ? "bg-gray-400 cursor-not-allowed" : "bg-green-500 text-white hover:opacity-90"
-          }`}
-        >
-          Find a Match
-        </button>
-      </div>
+
+      {/* Shopping Cart Modal */}
+      <MatchingCartModal
+        favorites={favorites}
+        onRemoveFavorite={(id) =>
+          setFavorites((prev) => prev.filter((dog) => dog.id !== id))
+        }
+        onFindMatch={handleMatch}
+        isMatchDisabled={favorites.length === 0}
+      />
     </div>
   );
 }
