@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import MatchingCartModal from "@/app/components/MatchingCart";
+import { pages } from "next/dist/build/templates/app-page";
 
 export default function Search() {
   const [dogs, setDogs] = useState<Dog[]>([]);
@@ -18,9 +19,10 @@ export default function Search() {
   const [ageMin, setAgeMin] = useState<number | undefined>(undefined);
   const [ageMax, setAgeMax] = useState<number | undefined>(undefined);
 
+  const [zipCode, setZipCode] = useState<number | undefined>(undefined); // temp until fix dogs/search API
   const [city, setCity] = useState(""); // New state for city
   const [state, setState] = useState(""); // New state for state
-  const [zipCodes, setZipCodes] = useState<string[]>([]); // Zip codes fetched based on city and state
+  // const [zipCodes, setZipCodes] = useState<string[]>([]); // Zip codes fetched based on city and state
 
   const router = useRouter();
 
@@ -42,33 +44,33 @@ export default function Search() {
     fetchBreeds();
   }, []);
 
-  const fetchZipCodes = async () => {
-    if (!city && !state) {
-      setZipCodes([]);
-      return;
-    }
+  // const fetchZipCodes = async () => {
+  //   if (!city && !state) {
+  //     setZipCodes([]);
+  //     return;
+  //   }
 
-    try {
-      const response = await axios.post(
-        "https://frontend-take-home-service.fetch.com/locations/search",
-        {
-          city,
-          states: state ? [state] : undefined,
-        },
-        { withCredentials: true }
-      );
-      const fetchedZipCodes = response.data.results.map(
-        (location: { zip_code: string }) => location.zip_code
-      );
-      setZipCodes(fetchedZipCodes);
-    } catch (error) {
-      console.error("Failed to fetch zip codes", error);
-    }
-  };
+  //   try {
+  //     const response = await axios.post(
+  //       "https://frontend-take-home-service.fetch.com/locations/search",
+  //       {
+  //         city,
+  //         states: state ? [state] : undefined,
+  //       },
+  //       { withCredentials: true }
+  //     );
+  //     const fetchedZipCodes = response.data.results.map(
+  //       (location: { zip_code: string }) => location.zip_code
+  //     );
+  //     setZipCodes(fetchedZipCodes);
+  //   } catch (error) {
+  //     console.error("Failed to fetch zip codes", error);
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchZipCodes();
-  }, [city, state]);
+  // useEffect(() => {
+  //   fetchZipCodes();
+  // }, [city, state]);
 
   const fetchDogs = async (breed = "", page = 1, pageSize = 25) => {
     try {
@@ -78,11 +80,10 @@ export default function Search() {
       // create query parameters
       let queryParams = `size=${pageSize}&from=${from}&sort=${sortField}:${sortOrder}`;
       if (breed) queryParams += `&breeds=${breed}`;
+      if (zipCode) queryParams += `&zipCodes=${zipCode}`;
       if (ageMin !== undefined) queryParams += `&ageMin=${ageMin}`;
       if (ageMax !== undefined) queryParams += `&ageMax=${ageMax}`;
-      if (zipCodes.length > 0) queryParams += `&zipCodes=${zipCodes.join(",")}`;
-
-      console.log("Query Params", queryParams);
+      // if (zipCodes.length > 0) queryParams += `&zipCodes=${zipCodes.join(",")}`; commenting until fix dogs/search API
 
       // fetching dog ids
       const searchResponse = await axios.get(
@@ -92,7 +93,6 @@ export default function Search() {
   
       const dogIds = searchResponse.data.resultIds as string[];
       setTotal(searchResponse.data.total); // get total number of results
-      console.log("Dog IDs", dogIds);
   
       // fetch detailed dog data using the dog IDs
       if (dogIds.length > 0) {
@@ -113,7 +113,7 @@ export default function Search() {
 
   useEffect(() => {
     fetchDogs(selectedBreed, page, pageSize);
-  }, []);
+  }, [page, pageSize]);
 
   const toggleFavorite = (dog: Dog) => {
     setFavorites((prev) =>
@@ -187,7 +187,7 @@ export default function Search() {
               <option value="desc">Sort: Z-A</option>
             </select>
           </div>
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <label className="text-sm font-medium mb-1" htmlFor="city">
               City
             </label>
@@ -196,7 +196,7 @@ export default function Search() {
               placeholder="City"
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              className="p-2 rounded border text-black focus:ring focus:ring-blue-500 placeholder-gray-500"
+              className="p-2 rounded border text-black focus:ring focus:ring-blue-500 appearance-none placeholder-gray-500"
             />
           </div>
           <div className="flex flex-col">
@@ -208,7 +208,22 @@ export default function Search() {
               placeholder="State (e.g., CA)"
               value={state}
               onChange={(e) => setState(e.target.value)}
-              className="p-2 rounded border text-black focus:ring focus:ring-blue-500 placeholder-gray-500"
+              className="p-2 rounded border text-black focus:ring focus:ring-blue-500 appearance-none placeholder-gray-500"
+            />
+          </div> */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1" htmlFor="zipCode">
+              Zip Code
+            </label>
+            <input
+              type="number"
+              placeholder="Zip Code"
+              value={zipCode !== undefined ? zipCode : ""}
+              onChange={(e) => {
+                const value = e.target.value;
+                setZipCode(value === "" ? undefined : Number(value));
+              }}
+              className="p-2 rounded border text-black focus:ring focus:ring-blue-500 appearance-none placeholder-gray-500"
             />
           </div>
           <div className="flex flex-col">
