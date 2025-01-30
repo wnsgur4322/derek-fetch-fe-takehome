@@ -1,5 +1,5 @@
 // Define interfaces to algin with the API response
-interface Dog {
+export interface Dog {
     id: string;
     img: string;
     name: string;
@@ -8,7 +8,7 @@ interface Dog {
     breed: string;
 }
 
-interface Location {
+export  interface Location {
     zip_code: string
     latitude: number
     longitude: number
@@ -17,12 +17,12 @@ interface Location {
     county: string
 }
 
-interface Coordinates {
+export  interface Coordinates {
     lat: number;
     lon: number;
 }
 
-interface Match {
+export  interface Match {
     match: string
 }
   

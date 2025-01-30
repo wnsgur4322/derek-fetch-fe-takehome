@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { Dog } from "@/app/types";
 
 interface MatchingCartModalProps {
   favorites: Dog[];

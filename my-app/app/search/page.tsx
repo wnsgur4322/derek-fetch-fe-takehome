@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import MatchingCartModal from "@/app/components/MatchingCart";
+import { Dog } from "@/app/types";
 
 export default function Search() {
   const [dogs, setDogs] = useState<Dog[]>([]);
