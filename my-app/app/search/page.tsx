@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import MatchingCartModal from "@/app/components/MatchingCart";
-import { pages } from "next/dist/build/templates/app-page";
 
 export default function Search() {
   const [dogs, setDogs] = useState<Dog[]>([]);
@@ -20,8 +19,8 @@ export default function Search() {
   const [ageMax, setAgeMax] = useState<number | undefined>(undefined);
 
   const [zipCode, setZipCode] = useState<number | undefined>(undefined); // temp until fix dogs/search API
-  const [city, setCity] = useState(""); // New state for city
-  const [state, setState] = useState(""); // New state for state
+  // const [city, setCity] = useState(""); // New state for city
+  // const [state, setState] = useState(""); // New state for state
   // const [zipCodes, setZipCodes] = useState<string[]>([]); // Zip codes fetched based on city and state
 
   const router = useRouter();

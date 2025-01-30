@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Derek's Fetch Doggo Finder App",
+  title: "Derek's Doggo Finder App",
   description: "This app is a Takehome assignment for Fetch Rewards",
 };
 

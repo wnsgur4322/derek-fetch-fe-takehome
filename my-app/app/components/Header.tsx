@@ -24,7 +24,7 @@ export default function Header() {
 
   return (
     <header className="bg-primary py-4 px-8 flex justify-between items-center">
-      <div className="text-xl font-bold">Derek's Fetch Doggo Finder</div>
+      <div className="text-xl font-bold">Derek Doggo Finder</div>
       <nav className="flex space-x-4">
         {pathname === "/" ? (
           <Link href="/" className="hover:text-highlight">
